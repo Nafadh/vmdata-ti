@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class VMSpecification extends Model
 {
-    protected $table = 'vm_specifications';
+    protected $table = 'v_m_specifications';
 
     protected $fillable = [
         'name',
@@ -16,5 +16,10 @@ class VMSpecification extends Model
         'price_per_hour',
         'description',
     ];
+
+    public function vms()
+    {
+        return $this->hasMany(VM::class, 'v_m_specification_id');
+    }
 }
 

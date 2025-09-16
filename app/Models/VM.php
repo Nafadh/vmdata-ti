@@ -12,7 +12,7 @@ class VM extends Model
 
     protected $fillable = [
         'name', 'hostname', 'category_id', 'vm_specification_id', 
-        'os', 'ip_address', 'status', 'description', 'ports'
+         'server_id', 'cpu', 'ram', 'storage', 'backup_disk', 'status', 'description', 'ports'
     ];
 
     protected $casts = [

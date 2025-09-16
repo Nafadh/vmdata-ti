@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vm_specifications', function (Blueprint $table) {
+        Schema::create('servers', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // e.g., "Basic", "Standard", "Premium"
-            $table->integer('cpu_cores');
-            $table->integer('ram_gb');
-            $table->integer('storage_gb');
-            $table->decimal('price_per_hour', 10, 2);
+            $table->string('name');
+            $table->string('local_network');
+            $table->string('status')->default('active');
+            $table->string('ip_address')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
         });
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vm_specifications');
+        Schema::dropIfExists('servers');
     }
 };

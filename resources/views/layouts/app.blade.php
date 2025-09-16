@@ -16,7 +16,7 @@
         }
         .sidebar .nav-link:hover {
             color: white;
-            background: rgba(255,255,255,0.1);
+            background: rgba(11, 66, 117, 0.63);
             border-radius: 5px;
         }
         .sidebar .nav-link.active {
@@ -39,16 +39,16 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
+            </nav>
             <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
                 <div class="position-sticky pt-3">
                     <div class="text-center mb-4">
+                            <li class="nav-item"></li>
                         <h4 class="text-white">
                             <i class="fas fa-server me-2"></i>
                             Datacenter TI
                         </h4>
                     </div>
-                    
-                    <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" 
                                href="{{ route('dashboard') }}">
@@ -56,6 +56,17 @@
                                 Dashboard
                             </a>
                         </li>
+                        <!--<li class="nav-item">
+                            <a class="nav-link" href="{{ route('servers.index') }}">
+                                <i class="fas fa-server"></i> Servers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('vms.index') }}">
+                                <i class="fas fa-desktop"></i> Virtual Machines
+                            </a>
+                        </li>
+                        -->
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('vms.*') ? 'active' : '' }}" 
                                href="{{ route('vms.index') }}">
@@ -63,6 +74,7 @@
                                 Virtual Machines
                             </a>
                         </li>
+                    
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('rentals.*') ? 'active' : '' }}" 
                                href="{{ route('rentals.index') }}">
@@ -83,6 +95,25 @@
                             </a>
                         </li>
                     </ul>
+                    <!-- Tombol Login / Logout -->
+                        @guest
+                            <li class="nav-item mt-3">
+                                <a class="nav-link btn btn-primary text-white" href="{{ route('login') }}">
+                                    <i class="fas fa-sign-in-alt"></i> Login
+                                </a>
+                            </li>
+                        @endguest
+
+                        @auth
+                            <li class="nav-item mt-3">
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="nav-link btn btn-danger text-white w-100 text-start">
+                                        <i class="fas fa-sign-out-alt"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                        @endauth
 
                     <div class="mt-auto pt-5">
                         <div class="text-center">
@@ -120,8 +151,8 @@
             </main>
         </div>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     @yield('scripts')
-</body>
+
 </html>

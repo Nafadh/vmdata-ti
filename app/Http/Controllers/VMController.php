@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\VM;
 use App\Models\Category;
 use App\Models\VMSpecification;
+use App\Models\Server;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -28,6 +29,15 @@ class VMController extends Controller
                   });
             });
         }
+    
+        // Data server Anda
+            try {
+            $servers = server::all();
+        } catch (\Exception $e) {
+            $servers = collect([]);
+        }
+    
+        return view('vms.index', compact('servers'));
 
         // Status filter
         if ($request->has('status') && $request->status) {

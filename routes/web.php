@@ -4,8 +4,13 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VMController;
 use App\Http\Controllers\VMRentalController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ServerController;
+use App\Http\Controllers\RentalController;
 use Illuminate\Support\Facades\Route;
 
+
+Route::resource('servers', ServerController::class);
+Route::resource('rentals', RentalController::class);
 Route::get('/', function () {
     return redirect('/dashboard');
 });

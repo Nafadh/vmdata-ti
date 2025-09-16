@@ -33,7 +33,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+   <!-- <div class="col-md-3">
         <div class="card stats-card text-center">
             <div class="card-body">
                 <i class="fas fa-dollar-sign fa-2x text-info mb-2"></i>
@@ -41,8 +41,8 @@
                 <p class="card-text">Total Revenue</p>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
+    </div>-->
+    <div class="col-md-2">
         <div class="card stats-card text-center">
             <div class="card-body">
                 <i class="fas fa-users fa-2x text-secondary mb-2"></i>

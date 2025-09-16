@@ -11,8 +11,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CategorySeeder::class,
             VMSpecificationSeeder::class,
+            ServerSeeder::class,
+            RentalSeeder::class,
             // UserSeeder::class,
             // VMSeeder::class,
-        ]);
+            // RentalSeeder
+         ]); 
     }
 }

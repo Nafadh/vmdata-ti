@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vms', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->id();
             $table->string('name');
             $table->string('hostname')->unique();
             $table->foreignId('category_id')->constrained();
-            $table->foreignId('vm_specification_id')->constrained();
+            $table->foreignId('vm_specification_id')->constrained('v_m_specifications')->cascadeOnDelete();
             $table->enum('os', ['ubuntu', 'centos', 'windows', 'debian']);
             $table->string('ip_address')->nullable();
             $table->enum('status', ['available', 'rented', 'maintenance', 'offline']);
