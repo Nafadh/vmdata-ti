@@ -15,7 +15,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2">
+    <!--<div class="col-md-2">
         <div class="card stats-card text-center">
             <div class="card-body">
                 <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
@@ -23,13 +23,13 @@
                 <p class="card-text">Tersedia</p>
             </div>
         </div>
-    </div>
+    </div> -->
     <div class="col-md-2">
         <div class="card stats-card text-center">
             <div class="card-body">
                 <i class="fas fa-calendar-check fa-2x text-warning mb-2"></i>
                 <h3 class="mb-0">{{ $stats['active_rentals'] }}</h3>
-                <p class="card-text">Perental Aktif</p>
+                <p class="card-text">Renter</p>
             </div>
         </div>
     </div>

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::resource('servers', ServerController::class);
-Route::resource('rentals', RentalController::class);
+Route::resource('rentals', RentalController::class)->middleware(['auth']);
 Route::get('/', function () {
     return redirect('/dashboard');
 });
@@ -27,9 +27,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('vms', VMController::class);
     
     // Rental Routes
-    Route::get('/rentals', [VMRentalController::class, 'index'])->name('rentals.index');
-    Route::post('/rentals', [VMRentalController::class, 'store'])->name('rentals.store');
-    Route::get('/rentals/{rental}', [VMRentalController::class, 'show'])->name('rentals.show');
+    //Route::get('/rentals', [RentalController::class, 'index'])->name('rentals.index');
+    //Route::post('/rentals', [RentalController::class, 'store'])->name('rentals.store');
+    //Route::get('/rentals/{rental}', [RentalController::class, 'show'])->name('rentals.show');
 });
 
 require __DIR__.'/auth.php';

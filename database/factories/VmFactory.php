@@ -15,7 +15,7 @@ class VmFactory extends Factory
             'name' => 'VM-' . $this->faker->unique()->numberBetween(1, 100),
             'hostname' => $this->faker->unique()->domainWord() . '.local', // hostname unik
             'category_id' => 1, // bisa disesuaikan dengan CategorySeeder
-            'vm_specification_id' => 1, // pastikan sesuai dengan VMSpecificationSeeder
+            'v_m_specification_id' => 1, // pastikan sesuai dengan VMSpecificationSeeder
             'os' => $this->faker->randomElement(['ubuntu', 'centos', 'windows', 'debian']),
             'ip_address' => $this->faker->ipv4(),
             'status' => $this->faker->randomElement(['available', 'rented', 'maintenance', 'offline']),

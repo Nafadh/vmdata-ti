@@ -12,6 +12,7 @@ class ServerController extends Controller
     public function index()
     {
         //
+
     }
 
     /**

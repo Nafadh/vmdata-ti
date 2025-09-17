@@ -2,63 +2,74 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Rental;
+use App\Models\User;
+use App\Models\Vm;
 use Illuminate\Http\Request;
 
 class RentalController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $rentals = Rental::with(['user','vm','admin'])->paginate(10);
+;
+        return view('rentals.index', compact('rentals'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $users = User::all();
+        $vms   = Vm::all();
+        $admins = User::where('role', 'admin')->get();
+        return view('rentals.create', compact('users','vms','admins'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'user_id'    => 'required',
+            'vm_id'      => 'required',
+            'start_date' => 'required|date',
+            'end_date'   => 'required|date|after_or_equal:start_date',
+            'status'     => 'required',
+            'admin_id'   => 'required',
+        ]);
+
+        Rental::create($request->all());
+
+        return redirect()->route('rentals.index')->with('success','Rental berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Rental $rental)
     {
-        //
+        return view('rentals.show', compact('rental'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Rental $rental)
     {
-        //
+        $users = User::all();
+        $vms   = Vm::all();
+        $admins = User::where('role', 'admin')->get();
+        return view('rentals.edit', compact('rental','users','vms','admins'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Rental $rental)
     {
-        //
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date'   => 'required|date|after_or_equal:start_date',
+            'status'     => 'required',
+            'admin_id'   => 'required',
+        ]);
+
+        $rental->update($request->all());
+
+        return redirect()->route('rentals.index')->with('success','Rental berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Rental $rental)
     {
-        //
+        $rental->delete();
+        return redirect()->route('rentals.index')->with('success','Rental berhasil dihapus.');
     }
 }
