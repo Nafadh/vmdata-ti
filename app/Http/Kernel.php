@@ -53,4 +53,14 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class, // ini yang kamu butuhkan
     ];
+
+    /**
+     * The application's middleware aliases. Newer Laravel versions use this
+     * property; we mirror the 'role' alias here to ensure compatibility.
+     *
+     * @var array<string, class-string|string>
+     */
+    protected $middlewareAliases = [
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
+    ];
 }

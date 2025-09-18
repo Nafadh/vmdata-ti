@@ -80,11 +80,12 @@
                                 </td>
                                 <td>
                                     <small>
-                                        <strong>CPU:</strong> {{ $vm->cpu ?? $vm->cpu_cores ?? 'N/A' }} Core<br>
-                                        <strong>RAM:</strong> {{ $vm->ram ?? $vm->ram_gb ?? 'N/A' }} {{ isset($vm->ram) ? 'MB' : 'GB' }}<br>
-                                        <strong>Storage:</strong> {{ $vm->storage ?? $vm->storage_gb ?? 'N/A' }} GB
+                                        <strong>CPU:</strong> {{ $vm->specification->cpu ?? 'N/A' }} Core<br>
+                                        <strong>RAM:</strong> {{ $vm->specification->ram ?? 'N/A' }} GB<br>
+                                        <strong>Storage:</strong> {{ $vm->specification->storage ?? 'N/A' }} GB
                                     </small>
                                 </td>
+
                                 <td class="text-center">
                                     @if(isset($vm->status))
                                         @if($vm->status === 'running')
@@ -100,10 +101,10 @@
                                         <span class="badge bg-secondary">Unknown</span>
                                     @endif
                                 </td>
-                                <td class="text-center">{{ $vm->backup_disk ?? '-' }}</td>
-                                <td class="text-center">{{ $vm->storage_local ?? '-' }}</td>
-                                <td class="text-center">{{ $vm->usage ?? '-' }}</td>
-                                <td class="text-center">{{ $vm->responsible ?? '-' }}</td>
+                                <td class="text-center">{{ $vm->specification->backup_disk ?? '-' }}</td>
+                                <td class="text-center">{{ $vm->specification->storage_local ?? '-' }}</td>
+                                <td class="text-center">{{ $vm->specification->usage ?? '-' }}</td>
+                                <td class="text-center">{{ $vm->specification->responsible ?? '-' }}</td>
                                 <td class="text-center">
                                     @if(isset($vm->id))
                                         <div class="btn-group" role="group">

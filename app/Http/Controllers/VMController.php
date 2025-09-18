@@ -29,17 +29,7 @@ class VMController extends Controller
                   });
             });
         }
-    
-        // Data server Anda
-            try {
-            $servers = server::all();
-        } catch (\Exception $e) {
-            $servers = collect([]);
-        }
-    
-        return view('vms.index', compact('servers'));
-
-        // Status filter
+    // Status filter
         if ($request->has('status') && $request->status) {
             $query->where('status', $request->status);
         }
@@ -51,7 +41,14 @@ class VMController extends Controller
 
         $vms = $query->paginate(12)->appends($request->query());
 
-        return view('vms.index', compact('vms'));
+        // Data server Anda
+            try {
+            $servers = Server::all();
+        } catch (\Exception $e) {
+            $servers = collect([]);
+        }
+    
+        return view('vms.index', compact('vms', 'servers'));
     }
 
     /**

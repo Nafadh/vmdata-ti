@@ -35,7 +35,7 @@
 
                 <!-- RAM -->
                 <div class="mb-3">
-                    <label for="ram" class="form-label">RAM (MB)</label>
+                    <label for="ram" class="form-label">RAM (GB)</label>
                     <input type="number" class="form-control @error('ram') is-invalid @enderror"
                            id="ram" name="ram" value="{{ old('ram') }}" required>
                     @error('ram')

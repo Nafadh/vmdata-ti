@@ -70,9 +70,9 @@
                         <div class="flex-grow-1">
                             <h6 class="mb-1">{{ $vm->name }}</h6>
                             <small class="text-muted">
-                                <i class="fas fa-tag me-1"></i>{{ $vm->category->name }}
+                                <i class="fas fa-tag me-1"></i>{{ optional($vm->category)->name ?? 'Uncategorized' }}
                                 <span class="ms-2">
-                                    <i class="fas fa-microchip me-1"></i>{{ $vm->specification->name }}
+                                    <i class="fas fa-microchip me-1"></i>{{ optional($vm->specification)->name ?? 'No Specification' }}
                                 </span>
                             </small>
                             <div class="mt-1">

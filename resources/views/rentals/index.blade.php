@@ -104,12 +104,20 @@
                                 </td>
                                 <td>
                                     @php
-                                        $statusClass = match($rental->status) {
-                                            'active' => 'success',
-                                            'inactive' => 'secondary',
-                                            'expired' => 'danger',
-                                            default => 'warning'
-                                        };
+                                        switch($rental->status) {
+                                            case 'active':
+                                                $statusClass = 'success';
+                                                break;
+                                            case 'inactive':
+                                                $statusClass = 'secondary';
+                                                break;
+                                            case 'expired':
+                                                $statusClass = 'danger';
+                                                break;
+                                            default:
+                                                $statusClass = 'warning';
+                                            break;
+                                        }
                                     @endphp
                                     <span class="badge bg-{{ $statusClass }}">
                                         {{ ucfirst($rental->status) }}
