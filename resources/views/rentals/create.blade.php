@@ -2,6 +2,7 @@
 
 @section('content')
 <div class="container">
+    
     <h1>Tambah Rental</h1>
 
     <form action="{{ route('rentals.store') }}" method="POST">
@@ -37,14 +38,14 @@
             <input type="date" name="end_date" class="form-control" required>
         </div>
 
-        <div class="mb-3">
+        <!--<div class="mb-3">
             <label>Status</label>
             <select name="status" class="form-control">
                 <option value="Aktif">Aktif</option>
                 <option value="Selesai">Selesai</option>
                 <option value="Pending">Pending</option>
             </select>
-        </div>
+        </div>-->
 
         <div class="mb-3">
             <label>Penanggung Jawab</label>

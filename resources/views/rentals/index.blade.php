@@ -1,13 +1,10 @@
 @extends('layouts.app')
 
+@section('title', 'Rentals')
+@section('page-title', 'Rentals')
 @section('content')
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Rental Management</h1>
-        <a href="{{ route('rentals.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Tambah Rental
-        </a>
-    </div>
+    <h2 class ="mb-4" >Rental Management </h2>
 
     {{-- Alert Messages --}}
     @if(session('success'))
@@ -42,18 +39,24 @@
                             <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-outline-primary">
-                            <i class="fas fa-search"></i> Cari
-                        </button>
-                        <a href="{{ route('rentals.index') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-refresh"></i> Reset
-                        </a>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <button type="submit" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-search"></i> Cari
+                            </button>
+                            <a href="{{ route('rentals.index') }}" class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-refresh"></i> Reset
+                            </a>
+                            <a href="{{ route('rentals.create') }}" class="btn btn-primary ms-auto">
+                                <i class="fas fa-plus"></i> Tambah Rental
+                            </a>
+                        </div>
                     </div>
-                </div>
-            </form>
-        </div>
+                </div>                    
+            </div>
+        </form>
     </div>
+</div>
 
     {{-- Table --}}
     <div class="card">

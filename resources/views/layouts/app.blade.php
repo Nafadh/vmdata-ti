@@ -33,6 +33,17 @@
         .vm-card:hover {
             transform: translateY(-5px);
         }
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+        }
+
+         main.flex-1.p-6 { padding: 24px 36px; }
+    /* profile menu card hover */
+    .profile-menu-card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.08); transform: translateY(-4px); }
+    .sidebar .nav-link .badge { font-size: .7rem; }
     </style>
 </head>
 <body>
@@ -42,87 +53,7 @@
             </nav>
             <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
                 <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                            <li class="nav-item"></li>
-                        <h4 class="text-white">
-                            <i class="fas fa-server me-2"></i>
-                            Datacenter TI
-                        </h4>
-                    </div>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" 
-                               href="{{ route('dashboard') }}">
-                                <i class="fas fa-tachometer-alt me-2"></i>
-                                Dashboard
-                            </a>
-                        </li>
-                        <!--<li class="nav-item">
-                            <a class="nav-link" href="{{ route('servers.index') }}">
-                                <i class="fas fa-server"></i> Servers
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('vms.index') }}">
-                                <i class="fas fa-desktop"></i> Virtual Machines
-                            </a>
-                        </li>
-                        -->
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('vms.*') ? 'active' : '' }}" 
-                               href="{{ route('vms.index') }}">
-                                <i class="fas fa-server me-2"></i>
-                                Virtual Machines
-                            </a>
-                        </li>
-                    
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('rentals.*') ? 'active' : '' }}" 
-                               href="{{ route('rentals.index') }}">
-                                <i class="fas fa-calendar-check me-2"></i>
-                                Rentals
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-chart-bar me-2"></i>
-                                Reports
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-cog me-2"></i>
-                                Settings
-                            </a>
-                        </li>
-                    </ul>
-                    <!-- Tombol Login / Logout -->
-                        @guest
-                            <li class="nav-item mt-3">
-                                <a class="nav-link btn btn-primary text-white" href="{{ route('login') }}">
-                                    <i class="fas fa-sign-in-alt"></i> Login
-                                </a>
-                            </li>
-                        @endguest
-
-                        @auth
-                            <li class="nav-item mt-3">
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="nav-link btn btn-danger text-white w-100 text-start">
-                                        <i class="fas fa-sign-out-alt"></i> Logout
-                                    </button>
-                                </form>
-                            </li>
-                        @endauth
-
-                    <div class="mt-auto pt-5">
-                        <div class="text-center">
-                            <small class="text-white-50">
-                                <i class="fas fa-user me-1"></i>
-                                Admin Test
-                            </small>
-                        </div>
-                    </div>
+                    @include('layouts.partials.sidebar')
                 </div>
             </nav>
 
@@ -151,8 +82,19 @@
             </main>
         </div>
     </div>
+
+
 </body>  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function () {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+        });
+    </script>
     @yield('scripts')
 
 </html>

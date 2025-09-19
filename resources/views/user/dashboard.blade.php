@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('app')
 
 @section('title', 'Dashboard Saya')
 @section('page-title', 'Dashboard Pengguna')
@@ -6,7 +6,7 @@
 @section('content')
 <div class="container-fluid">
 
-    <h2 class="mb-4">Dashboard Saya</h2>
+
 
     <div class="row mb-4">
         <div class="col-md-4">
@@ -104,35 +104,5 @@
         </div>
     </div>
 
-</div>
-@endsection
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // minimal client interactions if needed
-});
-</script>
-@endpush
-@extends('layouts.app')
-
-@section('title', 'User Dashboard')
-@section('page-title', 'Dashboard User')
-
-@section('content')
-<div class="container">
-    <h2>Halo, {{ Auth::user()->name }}!</h2>
-    <p>Total VM saya: {{ $stats['my_vms'] }}</p>
-    <p>Sewa aktif: {{ $stats['active_rentals'] }}</p>
-    <p>Total biaya: Rp {{ number_format($stats['total_spent'], 0, ',', '.') }}</p>
-
-    <h4 class="mt-4">Sewa Saya</h4>
-    <ul>
-        @forelse ($myRentals as $rental)
-            <li>{{ $rental->vm->name }} ({{ ucfirst($rental->status) }})</li>
-        @empty
-            <li>Belum ada sewa</li>
-        @endforelse
-    </ul>
 </div>
 @endsection

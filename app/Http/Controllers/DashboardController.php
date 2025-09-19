@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\VM;
 use App\Models\VMRental;
+use App\Models\Rental;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,11 +22,42 @@ class DashboardController extends Controller
         ];
 
         $recentVMs = VM::latest()->take(5)->with(['category', 'specification'])->get();
-        $activeRentals = VMRental::where('status', 'active')
+        // Combine active rentals from both VMRental and Rental so admin dashboard
+        // shows all renter records regardless of which table they are stored in.
+        $vmRentals = VMRental::where('status', 'active')
             ->with(['vm', 'user'])
             ->latest()
             ->take(10)
             ->get();
+
+        $otherRentals = Rental::where('status', 'active')
+            ->with(['vm', 'user'])
+            ->latest()
+            ->take(10)
+            ->get();
+
+        // Normalize rentals: ensure start_time/end_time are Carbon instances and total_cost exists
+        $normalizedVm = $vmRentals->map(function ($r) {
+            // VMRental likely already has start_time/end_time as datetimes
+            $r->start_time = $r->start_time ?? ($r->start_date ?? null);
+            $r->end_time = $r->end_time ?? ($r->end_date ?? null);
+            $r->total_cost = $r->total_cost ?? 0;
+            return $r;
+        });
+
+        $normalizedOther = $otherRentals->map(function ($r) {
+            $r->start_time = isset($r->start_date) ? \Carbon\Carbon::parse($r->start_date) : null;
+            $r->end_time = isset($r->end_date) ? \Carbon\Carbon::parse($r->end_date) : null;
+            $r->total_cost = $r->total_cost ?? 0;
+            return $r;
+        });
+
+        $activeRentals = $normalizedVm->concat($normalizedOther)
+            ->sortByDesc(function ($r) {
+                return $r->start_time ? $r->start_time->timestamp : 0;
+            })
+            ->take(10)
+            ->values();
 
         return view('dashboard', compact('stats', 'recentVMs', 'activeRentals'));
     }
@@ -44,7 +76,7 @@ class DashboardController extends Controller
         ];
 
         $myRentals = VMRental::where('user_id', $user->id)
-            ->with('vm')
+            ->with(['vm', 'user'])
             ->latest()
             ->take(10)
             ->get();

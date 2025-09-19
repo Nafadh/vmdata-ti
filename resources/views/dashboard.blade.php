@@ -58,7 +58,7 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header d-flex justify-content-between">
-                <h5><i class="fas fa-server me-2"></i>Recent VMs</h5>
+                <h5><i class="fas fa-server me-2"></i>Server</h5>
                 <a href="{{ route('vms.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
             </div>
             <div class="card-body">
@@ -115,19 +115,23 @@
                         <div class="flex-grow-1">
                             <h6 class="mb-1">{{ $rental->vm->name }}</h6>
                             <small class="text-muted">
-                                <i class="fas fa-user me-1"></i>{{ $rental->user->name }}
+                                <i class="fas fa-user me-1"></i>{{ optional($rental->user)->organization ?? optional($rental->user)->name ?? 'Unknown' }}
                             </small>
                             <div class="mt-1">
                                 <small class="text-muted">
                                     <i class="fas fa-clock me-1"></i>
-                                    {{ $rental->start_time->format('M j, H:i') }} - 
-                                    {{ $rental->end_time->format('M j, H:i') }}
+                                    @php
+                                        $start = optional($rental->start_time);
+                                        $end = optional($rental->end_time);
+                                    @endphp
+                                    {{ $start && method_exists($start, 'format') ? $start->format('M j, H:i') : (is_string($start) ? $start : '-') }} -
+                                    {{ $end && method_exists($end, 'format') ? $end->format('M j, H:i') : (is_string($end) ? $end : '-') }}
                                 </small>
                             </div>
                         </div>
                         <div class="text-end">
-                            <span class="fw-bold text-success">${{ $rental->total_cost }}</span><br>
-                            <span class="badge bg-success">{{ ucfirst($rental->status) }}</span>
+                            <!--<span class="fw-bold text-success">{{ isset($rental->total_cost) ? ('$' . $rental->total_cost) : '-' }}</span><br> -->
+                            <span class="badge bg-success">{{ ucfirst($rental->status ?? 'active') }}</span>
                         </div>
                     </div>
                 @empty

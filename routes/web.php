@@ -6,6 +6,7 @@ use App\Http\Controllers\VMRentalController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\RentalController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -32,6 +33,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 // ROUTE USER (accessible by admin and user)
 Route::middleware(['auth', 'role:admin,user'])->group(function () {
     // User hanya bisa kelola VM sendiri
+    Route::get('/user/dashboard', [UserController::class, 'index'])->name('user.dashboard');
+    Route::get('/user/profile', [UserController::class, 'profile'])->name('user.profile');
     // Ensure named index route exists (some callers expect route('vms.index'))
     Route::get('/vms', [VMController::class, 'index'])->name('vms.index');
     // Ensure named create route exists for forms/links
