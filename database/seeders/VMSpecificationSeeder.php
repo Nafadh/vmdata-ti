@@ -3,39 +3,40 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\VMSpecification;
+use Illuminate\Support\Facades\DB;
 
 class VMSpecificationSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        VMSpecification::create([
-            'name' => 'Basic',
-            'cpu_cores' => 1,
-            'ram_gb' => 1,
-            'storage_gb' => 20,
-            'price_per_hour' => 0.5,
-            'description' => 'Paket dasar untuk penggunaan ringan',
+        DB::table('v_m_specifications')->insert([
+            [
+                'name' => 'VM Basic',
+                'ram' => 4,
+                'storage' => 128,
+                'backup_disk' => 10,
+                'description' => 'Paket dasar untuk penggunaan ringan',
+                'status' => 'available'
+            ],
+            [
+                'name' => 'VM Standard',
+                'ram' => 8,
+                'storage' => 256,
+                'backup_disk' => 20,
+                'description' => 'Paket standar untuk kebutuhan menengah',
+                'status' => 'available'
+            ],
+            [
+                'name' => 'VM Premium',
+                'ram' => 12,
+                'storage' => 512,
+                'backup_disk' => 50,
+                'description' => 'Paket premium untuk performa tinggi',
+                'status' => 'available'
+            ],  
         ]);
-
-        VMSpecification::create([
-            'name' => 'Standard',
-            'cpu_cores' => 2,
-            'ram_gb' => 4,
-            'storage_gb' => 50,
-            'price_per_hour' => 1.5,
-            'description' => 'Paket standar untuk penggunaan menengah',
-        ]);
-
-        VMSpecification::create([
-            'name' => 'Premium',
-            'cpu_cores' => 4,
-            'ram_gb' => 8,
-            'storage_gb' => 100,
-            'price_per_hour' => 3.0,
-            'description' => 'Paket premium untuk penggunaan berat',
-        ]);
-
-        echo "VM Specifications seeded successfully!\n";
     }
 }

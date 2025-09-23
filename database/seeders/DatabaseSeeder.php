@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         DB::table('users')->insertOrIgnore([
             'name' => 'Admin',
             'email' => 'admin@example.com',
-            'password' => Hash::make('password'), // default password = "password"
+            'password' => Hash::make('admin123'), // default password = "password"
             'role' => 'admin',
             'created_at' => now(),
             'updated_at' => now(),
@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
         DB::table('users')->insertOrIgnore([
             'name' => 'User Demo',
             'email' => 'user@example.com',
-            'password' => Hash::make('password'), // default password = "password"
+            'password' => Hash::make('user123'), // default password = "password"
             'role' => 'user',
             'created_at' => now(),
             'updated_at' => now(),

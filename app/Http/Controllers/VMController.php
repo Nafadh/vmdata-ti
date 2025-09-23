@@ -15,18 +15,15 @@ class VMController extends Controller
      */
     public function index(Request $request)
     {
-        $query = VM::with(['category', 'specification']);
+        $query = VM::query();
 
-        // Search functionality
-        if ($request->has('search') && $request->search) {
+         // Search functionality
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('hostname', 'like', "%{$search}%")
-                  ->orWhere('ip_address', 'like', "%{$search}%")
-                  ->orWhereHas('category', function($categoryQuery) use ($search) {
-                      $categoryQuery->where('name', 'like', "%{$search}%");
-                  });
+                  ->orWhere('category', 'like', "%{$search}%")
+                  ->orWhere('status', 'like', "%{$search}%");
             });
         }
     // Status filter
@@ -68,55 +65,18 @@ class VMController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'hostname' => [
-                'required',
-                'string',
-                'max:255',
-                'unique:vms,hostname',
-                'regex:/^[a-z0-9-]+$/'
-            ],
-            'category_id' => 'required|exists:categories,id',
-            'vm_specification_id' => 'required|exists:vm_specifications,id',
-            'os' => 'required|in:ubuntu,centos,windows,debian',
-            'ip_address' => 'nullable|ip|unique:vms,ip_address',
+        'name'        => 'required|string|max:255',
+            'category'    => 'required|string|max:255',
+            'ram'         => 'required|integer|min:1',
+            'storage'     => 'required|integer|min:1',
+            'backup_disk' => 'nullable|integer|min:0',
             'description' => 'nullable|string|max:1000',
-            'ports' => 'nullable|string'
-        ], [
-            'hostname.regex' => 'Hostname can only contain lowercase letters, numbers, and hyphens.',
-            'hostname.unique' => 'This hostname is already taken.',
-            'ip_address.ip' => 'Please enter a valid IP address.',
-            'ip_address.unique' => 'This IP address is already assigned to another VM.'
+            'status'      => 'required|in:available,active,rented,inactive',
         ]);
 
-        // Process ports
-        $ports = null;
-        if ($request->ports) {
-            $portArray = array_map('trim', explode(',', $request->ports));
-            $portArray = array_filter($portArray, function($port) {
-                return is_numeric($port) && $port > 0 && $port <= 65535;
-            });
-            $ports = array_values($portArray);
-        }
+        $vm = VM::create($validated);
 
-        // Auto-assign IP if not provided
-        if (!$validated['ip_address']) {
-            $validated['ip_address'] = $this->generateNextIP();
-        }
-
-        $vm = VM::create([
-            'name' => $validated['name'],
-            'hostname' => $validated['hostname'],
-            'category_id' => $validated['category_id'],
-            'vm_specification_id' => $validated['vm_specification_id'],
-            'os' => $validated['os'],
-            'ip_address' => $validated['ip_address'],
-            'status' => 'available',
-            'description' => $validated['description'],
-            'ports' => $ports
-        ]);
-
-        return redirect()->route('vms.show', $vm)
+        return redirect()->route('vms.index')
                          ->with('success', 'Virtual Machine created successfully!');
     }
 
@@ -147,53 +107,21 @@ class VMController extends Controller
     public function update(Request $request, VM $vm)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'hostname' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('vms', 'hostname')->ignore($vm->id),
-                'regex:/^[a-z0-9-]+$/'
-            ],
-            'category_id' => 'required|exists:categories,id',
-            'vm_specification_id' => 'required|exists:vm_specifications,id',
-            'os' => 'required|in:ubuntu,centos,windows,debian',
-            'ip_address' => [
-                'nullable',
-                'ip',
-                Rule::unique('vms', 'ip_address')->ignore($vm->id)
-            ],
-            'status' => 'required|in:available,rented,maintenance,offline',
+        'name'        => 'required|string|max:255',
+            'category'    => 'required|string|max:255',
+            'ram'         => 'required|integer|min:1',
+            'storage'     => 'required|integer|min:1',
+            'backup_disk' => 'nullable|integer|min:0',
             'description' => 'nullable|string|max:1000',
-            'ports' => 'nullable|string'
+            'status'      => 'required|in:available,active,rented,inactive',
         ]);
 
-        // Process ports
-        $ports = null;
-        if ($request->ports) {
-            $portArray = array_map('trim', explode(',', $request->ports));
-            $portArray = array_filter($portArray, function($port) {
-                return is_numeric($port) && $port > 0 && $port <= 65535;
-            });
-            $ports = array_values($portArray);
-        }
+        $vm->update($validated);
 
-        $vm->update([
-            'name' => $validated['name'],
-            'hostname' => $validated['hostname'],
-            'category_id' => $validated['category_id'],
-            'vm_specification_id' => $validated['vm_specification_id'],
-            'os' => $validated['os'],
-            'ip_address' => $validated['ip_address'],
-            'status' => $validated['status'],
-            'description' => $validated['description'],
-            'ports' => $ports
-        ]);
-
-        return redirect()->route('vms.show', $vm)
+        return redirect()->route('vms.index')
                          ->with('success', 'Virtual Machine updated successfully!');
-    }
-
+    } 
+        
     /**
      * Remove the specified resource from storage.
      */

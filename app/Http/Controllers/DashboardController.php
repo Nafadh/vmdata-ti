@@ -13,6 +13,11 @@ class DashboardController extends Controller
     // Dashboard Admin
     public function index()
     {
+        // Redirect non-admin users to the user dashboard.
+        if (optional(Auth::user())->role !== 'admin') {
+            return redirect()->route('user.dashboard');
+        }
+
         $stats = [
             'total_vms' => VM::count(),
             'available_vms' => VM::where('status', 'available')->count(),

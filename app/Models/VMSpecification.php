@@ -10,7 +10,6 @@ class VMSpecification extends Model
 
     protected $fillable = [
         'name',
-        'cpu_cores',
         'ram_gb',
         'storage_gb',
         'price_per_hour',

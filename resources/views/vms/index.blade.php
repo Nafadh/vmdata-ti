@@ -59,13 +59,12 @@
                         <tr class="text-center">
                             <th>#</th>
                             <th>Nama VM</th>
-                            <th>Spesifikasi</th>
-                            <th>Status</th>
+                            <th>Kategori</th>
+                            <th>RAM</th>
+                            <th>Storage</th>
                             <th>Backup Disk</th>
-                            <th>Storage Local</th>
-                            <th>Penggunaan</th>
-                            <th>Penanggung Jawab</th>
-                            <th>Aksi</th>
+                            <th>Deskripsi</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>

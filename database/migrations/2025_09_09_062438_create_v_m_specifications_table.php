@@ -12,14 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('v_m_specifications', function (Blueprint $table) {
-            $table->engine = 'InnoDB';
             $table->id();
-            $table->string('name'); // e.g., "Basic", "Standard", "Premium"
-            $table->integer('cpu_cores');
-            $table->integer('ram_gb');
-            $table->integer('storage_gb');
-            $table->decimal('price_per_hour', 10, 2);
-            $table->text('description')->nullable();
+            $table->string('name');            // nama VM
+            $table->integer('ram');            // RAM dalam GB
+            $table->integer('storage');        // storage dalam GB
+            $table->integer('backup_disk')->nullable(); // backup disk opsional
+            $table->text('description')->nullable();    // deskripsi
+            $table->enum('status', ['available', 'rented', 'maintenance', 'offline'])->default('available'); // status VM
             $table->timestamps();
         });
     }

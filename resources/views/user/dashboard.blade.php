@@ -8,8 +8,8 @@
 
 
 
-    <div class="row mb-4">
-        <div class="col-md-4">
+    <div class="row mb-2">
+        <div class="col-md-6">
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h6 class="text-muted">Jumlah VM Saya</h6>
@@ -17,7 +17,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h6 class="text-muted">Sewa Aktif</h6>
@@ -25,14 +25,14 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <!--<div class="col-md-4">
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h6 class="text-muted">Total Belanja</h6>
                     <h3>Rp {{ number_format($stats['total_spent'] ?? 0, 0, ',', '.') }}</h3>
                 </div>
             </div>
-        </div>
+        </div>-->
     </div>
 
     <div class="card shadow-sm">

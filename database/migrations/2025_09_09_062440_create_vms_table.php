@@ -12,17 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vms', function (Blueprint $table) {
-            $table->engine = 'InnoDB';
             $table->id();
-            $table->string('name');
-            $table->string('hostname')->unique();
-            $table->foreignId('category_id')->constrained();
-            $table->foreignId('v_m_specification_id')->constrained('v_m_specifications')->cascadeOnDelete();
-            $table->enum('os', ['ubuntu', 'centos', 'windows', 'debian']);
-            $table->string('ip_address')->nullable();
-            $table->enum('status', ['available', 'rented', 'maintenance', 'offline']);
-            $table->text('description')->nullable();
-            $table->json('ports')->nullable(); // Open ports
+            $table->string('name');                  // nama VM
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            $table->integer('ram');                  // RAM dalam GB
+            $table->integer('storage');              // storage dalam GB
+            $table->integer('backup_disk')->nullable(); // backup disk opsional
+            $table->text('description')->nullable(); // deskripsi VM
+            $table->enum('status', ['available', 'rented', 'maintenance', 'offline'])->default('available');
+
+            // relasi ke user (siapa yang punya VM ini)
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+            // opsional: relasi ke tabel v_m_specifications (kalau mau link spesifikasi default)
+            $table->foreignId('specification_id')->nullable()->constrained('v_m_specifications')->onDelete('set null');
+
             $table->timestamps();
         });
     }

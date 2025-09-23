@@ -11,8 +11,8 @@ class VM extends Model
     protected $table = 'vms';
 
     protected $fillable = [
-        'name', 'hostname', 'category_id', 'vm_specification_id', 
-         'server_id', 'cpu', 'ram', 'storage', 'backup_disk', 'status', 'description', 'ports'
+        'name', 'category_id', 'vm_specification_id', 
+        'server_id', 'ram', 'storage', 'backup_disk', 'status', 'description'
     ];
 
     protected $casts = [
@@ -36,7 +36,7 @@ class VM extends Model
 
     public function getCurrentRentalAttribute()
 {
-    return $this->rentals()->where('status', 'active')->first();
+    return $this->rentals()->where('status', 'available')->first();
 }
 
     public function isAvailable()

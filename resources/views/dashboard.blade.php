@@ -4,6 +4,7 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
+@if(optional(auth()->user())->role === 'admin')
 <!-- Stats Cards -->
 <div class="row mb-4">
     <div class="col-md-2">
@@ -11,7 +12,7 @@
             <div class="card-body">
                 <i class="fas fa-server fa-2x text-primary mb-2"></i>
                 <h3 class="mb-0">{{ $stats['total_vms'] }}</h3>
-                <p class="card-text">Total VM</p>
+                <p class="card-text">Total Server</p>
             </div>
         </div>
     </div>
@@ -187,4 +188,10 @@
         </div>
     </div>
 </div>
+@else
+    <div class="alert alert-danger">
+        Anda tidak memiliki akses ke halaman admin dashboard.
+        <a href="{{ route('user.dashboard') }}" class="btn btn-sm btn-primary ms-2">Kembali ke Dashboard Pengguna</a>
+    </div>
+@endif
 @endsection
