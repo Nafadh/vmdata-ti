@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
 @section('title', 'Edit Permintaan Sewa')
-@section('page-title', 'Edit Permintaan Sewa VM')
+@section('page-title', 'Edit')
 
 @section('content')
 <div class="container-fluid">
-    <h2 class="mb-4">Edit Permintaan Sewa</h2>
+
 
     <form action="{{ route('vmrentals.update', $rental->id) }}" method="POST">
         @csrf
@@ -18,13 +18,30 @@
                 @endforeach
             </select>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Mulai</label>
-            <input type="datetime-local" name="start_time" value="{{ optional($rental->start_time)->format('Y-m-d\TH:i') }}" class="form-control" required>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label">CPU (vCPU)</label>
+                <input type="number" name="cpu" min="1" step="1" class="form-control" value="{{ old('cpu', $rental->cpu ?? 1) }}" required>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">RAM (GB)</label>
+                <input type="number" name="ram" min="1" class="form-control" value="{{ old('ram', $rental->ram) }}" required>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Storage (GB)</label>
+                <input type="number" name="storage" min="1" class="form-control" value="{{ old('storage', $rental->storage) }}" required>
+            </div>
+            
         </div>
-        <div class="mb-3">
-            <label class="form-label">Selesai</label>
-            <input type="datetime-local" name="end_time" value="{{ optional($rental->end_time)->format('Y-m-d\TH:i') }}" class="form-control">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Mulai</label>
+                <input type="date" name="start_time" value="{{ optional($rental->start_time)->format('Y-m-d') }}" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Selesai</label>
+                <input type="date" name="end_time" value="{{ optional($rental->end_time)->format('Y-m-d') }}" class="form-control">
+            </div>
         </div>
         <div class="mb-3">
             <label class="form-label">Tujuan</label>

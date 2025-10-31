@@ -1,9 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
+@section('title', 'Tambah Rental')
+@section('page-title', 'Tambah Rental')
 <div class="container">
     
-    <h1>Tambah Rental</h1>
+
 
     <form action="{{ route('rentals.store') }}" method="POST">
         @csrf
@@ -19,7 +21,7 @@
         </div>
 
         <div class="mb-3">
-            <label>VM / Server</label>
+            <label>VM </label>
             <select name="vm_id" class="form-control" required>
                 <option value="">-- Pilih VM --</option>
                 @foreach($vms as $vm)
@@ -38,14 +40,17 @@
             <input type="date" name="end_date" class="form-control" required>
         </div>
 
-        <!--<div class="mb-3">
+        <div class="mb-3">
             <label>Status</label>
-            <select name="status" class="form-control">
-                <option value="Aktif">Aktif</option>
-                <option value="Selesai">Selesai</option>
-                <option value="Pending">Pending</option>
+            <select name="status" class="form-control" required>
+                <option value="">-- Pilih Status --</option>
+                <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active</option>
+                <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="cancelled" {{ old('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
             </select>
-        </div>-->
+            @error('status') <div class="text-danger">{{ $message }}</div> @enderror
+        </div>
 
         <div class="mb-3">
             <label>Penanggung Jawab</label>

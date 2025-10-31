@@ -11,6 +11,7 @@ class VMRental extends Model
     protected $table = 'vm_rentals';
     protected $fillable = [
         'user_id', 'vm_id', 'start_time', 'end_time', 
+        'cpu', 'ram', 'storage',
         'total_cost', 'status', 'purpose', 'access_credentials'
     ];
 

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('backup_disk')->nullable(); // backup disk opsional
             $table->text('description')->nullable();    // deskripsi
             $table->enum('status', ['available', 'rented', 'maintenance', 'offline'])->default('available'); // status VM
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->timestamps();
         });
     }

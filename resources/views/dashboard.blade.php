@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard - Datacenter TI')
+@section('title', 'VMDATA TI')
 @section('page-title', 'Dashboard')
 
 @section('content')
@@ -12,7 +12,7 @@
             <div class="card-body">
                 <i class="fas fa-server fa-2x text-primary mb-2"></i>
                 <h3 class="mb-0">{{ $stats['total_vms'] }}</h3>
-                <p class="card-text">Total Server</p>
+                <p class="card-text">Total VM</p>
             </div>
         </div>
     </div>
@@ -30,7 +30,7 @@
             <div class="card-body">
                 <i class="fas fa-calendar-check fa-2x text-warning mb-2"></i>
                 <h3 class="mb-0">{{ $stats['active_rentals'] }}</h3>
-                <p class="card-text">Renter</p>
+                <p class="card-text">Rent</p>
             </div>
         </div>
     </div>
@@ -59,7 +59,7 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header d-flex justify-content-between">
-                <h5><i class="fas fa-server me-2"></i>Server</h5>
+                <h5><i class="fas fa-server me-2"></i>VM</h5>
                 <a href="{{ route('vms.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
             </div>
             <div class="card-body">
@@ -77,9 +77,32 @@
                                 </span>
                             </small>
                             <div class="mt-1">
-                                <span class="badge bg-{{ $vm->status == 'available' ? 'success' : 'warning' }}">
-                                    {{ ucfirst($vm->status) }}
-                                </span>
+                                @php
+                                    $status = $vm->status ?? 'unknown';
+                                    switch($status) {
+                                        case 'available':
+                                            $badgeClass = 'badge bg-success';
+                                            $style = '';
+                                            break;
+                                        case 'rented':
+                                            $badgeClass = 'badge bg-warning';
+                                            $style = '';
+                                            break;
+                                        case 'maintenance':
+                                            // use orange consistent with overview
+                                            $badgeClass = 'badge';
+                                            $style = 'background-color: #ff8c00; color: #fff;';
+                                            break;
+                                        case 'offline':
+                                            $badgeClass = 'badge bg-secondary';
+                                            $style = '';
+                                            break;
+                                        default:
+                                            $badgeClass = 'badge bg-info';
+                                            $style = '';
+                                    }
+                                @endphp
+                                <span class="{{ $badgeClass }}" style="{{ $style }}">{{ ucfirst($status) }}</span>
                             </div>
                         </div>
                         <div class="text-end">
@@ -125,8 +148,8 @@
                                         $start = optional($rental->start_time);
                                         $end = optional($rental->end_time);
                                     @endphp
-                                    {{ $start && method_exists($start, 'format') ? $start->format('M j, H:i') : (is_string($start) ? $start : '-') }} -
-                                    {{ $end && method_exists($end, 'format') ? $end->format('M j, H:i') : (is_string($end) ? $end : '-') }}
+                                    {{ $start && method_exists($start, 'format') ? $start->format('M j') : (is_string($start) ? $start : '-') }} -
+                                    {{ $end && method_exists($end, 'format') ? $end->format('M j') : (is_string($end) ? $end : '-') }}
                                 </small>
                             </div>
                         </div>
@@ -156,32 +179,40 @@
             <div class="card-body">
                 <div class="row text-center">
                     <div class="col-md-3">
-                        <div class="p-3">
-                            <i class="fas fa-circle text-success fa-lg"></i>
-                            <h4 class="text-success mt-2">{{ $stats['available_vms'] }}</h4>
-                            <p class="text-muted">Tersedia</p>
-                        </div>
+                        <a href="{{ route('vms.index', ['status' => 'available']) }}" class="text-decoration-none">
+                            <div class="p-3">
+                                <i class="fas fa-circle text-success fa-lg"></i>
+                                <h4 class="text-success mt-2">{{ $stats['available_vms'] }}</h4>
+                                <p class="text-muted">Tersedia</p>
+                            </div>
+                        </a>
                     </div>
                     <div class="col-md-3">
-                        <div class="p-3">
-                            <i class="fas fa-circle text-warning fa-lg"></i>
-                            <h4 class="text-warning mt-2">{{ $stats['active_rentals'] }}</h4>
-                            <p class="text-muted">Rented</p>
-                        </div>
+                        <a href="{{ route('vms.index', ['status' => 'rented']) }}" class="text-decoration-none">
+                            <div class="p-3">
+                                <i class="fas fa-circle text-warning fa-lg"></i>
+                                <h4 class="text-warning mt-2">{{ $stats['rented_vms'] }}</h4>
+                                <p class="text-muted">Rented</p>
+                            </div>
+                        </a>
                     </div>
                     <div class="col-md-3">
-                        <div class="p-3">
-                            <i class="fas fa-circle text-danger fa-lg"></i>
-                            <h4 class="text-danger mt-2">0</h4>
-                            <p class="text-muted">Maintenance</p>
-                        </div>
+                        <a href="{{ route('vms.index', ['status' => 'maintenance']) }}" class="text-decoration-none">
+                            <div class="p-3">
+                                <i class="fas fa-circle fa-lg" style="color: #ff8c00"></i>
+                                <h4 class="mt-2" style="color: #ff8c00">{{ $stats['maintenance_vms'] }}</h4>
+                                <p class="text-muted">Maintenance</p>
+                            </div>
+                        </a>
                     </div>
                     <div class="col-md-3">
-                        <div class="p-3">
-                            <i class="fas fa-circle text-secondary fa-lg"></i>
-                            <h4 class="text-secondary mt-2">0</h4>
-                            <p class="text-muted">Offline</p>
-                        </div>
+                        <a href="{{ route('vms.index', ['status' => 'offline']) }}" class="text-decoration-none">
+                            <div class="p-3">
+                                <i class="fas fa-circle text-secondary fa-lg"></i>
+                                <h4 class="text-secondary mt-2">{{ $stats['offline_vms'] }}</h4>
+                                <p class="text-muted">Offline</p>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </div>

@@ -14,12 +14,14 @@ return new class extends Migration
         Schema::create('vms', function (Blueprint $table) {
             $table->id();
             $table->string('name');                  // nama VM
-            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
-            $table->integer('ram');                  // RAM dalam GB
+            $table->unsignedBigInteger('category_id');   // relasi ke categories
             $table->integer('storage');              // storage dalam GB
             $table->integer('backup_disk')->nullable(); // backup disk opsional
             $table->text('description')->nullable(); // deskripsi VM
             $table->enum('status', ['available', 'rented', 'maintenance', 'offline'])->default('available');
+
+            //relasi ke category
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
 
             // relasi ke user (siapa yang punya VM ini)
             $table->foreignId('user_id')->constrained()->onDelete('cascade');

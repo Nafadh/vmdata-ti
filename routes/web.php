@@ -28,6 +28,94 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Admin dashboard
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])
         ->name('admin.dashboard');
+
+    // Admin settings
+    Route::get('/admin/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])
+        ->name('admin.settings.index');
+    Route::get('/admin/settings/{setting}/edit', [\App\Http\Controllers\Admin\SettingController::class, 'edit'])
+        ->name('admin.settings.edit');
+    Route::put('/admin/settings/{setting}', [\App\Http\Controllers\Admin\SettingController::class, 'update'])
+        ->name('admin.settings.update');
+
+    // Admin Reports
+    Route::get('/admin/reports', function() {
+        return view('admin.reports.index');
+    })->name('admin.reports.index');
+
+    Route::get('/admin/reports/rental', function() {
+        // Simple controller-less demo; in real usage, use a controller to prepare $rows, $summary, $period
+        $rows = \App\Models\VMRental::with(['user','vm','vm.category'])->latest()->take(200)->get();
+        $summary = [
+            'total_rentals' => $rows->count(),
+            'active_vms' => $rows->where('status', 'active')->count(),
+            'completed' => $rows->where('status', 'completed')->count(),
+            'unique_users' => $rows->pluck('user_id')->unique()->count(),
+        ];
+        return view('admin.reports.rental', compact('rows','summary'));
+    })->name('admin.reports.rental');
+
+    Route::get('/admin/reports/vm', function() {
+        $rows = \App\Models\VM::with(['specification','user'])->latest()->take(200)->get();
+        $summary = [
+            'total_vms' => $rows->count(),
+            'running' => $rows->where('status','running')->count(),
+            'stopped' => $rows->where('status','stopped')->count(),
+            'owners' => $rows->pluck('user_id')->unique()->count(),
+        ];
+        return view('admin.reports.vm', compact('rows','summary'));
+    })->name('admin.reports.vm');
+
+    // Admin notifications
+    Route::get('/admin/notifications', function() {
+        $user = auth()->user();
+        // When admin opens the notifications page, mark unread notifications as read automatically
+        try {
+            $user->unreadNotifications->markAsRead();
+        } catch (\Exception $e) {
+            // ignore if anything goes wrong with marking as read
+        }
+
+        $notifications = $user->notifications()->latest()->get();
+        return view('admin.notifications.index', compact('notifications'));
+    })->name('admin.notifications.index');
+
+    // Delete a single notification
+    Route::post('/admin/notifications/{id}/read', function($id) {
+        $user = auth()->user();
+        $note = $user->notifications()->where('id', $id)->first();
+        if ($note) {
+            // delete the notification record
+            $note->delete();
+        }
+        return redirect()->back()->with('success', 'Notifikasi telah dihapus.');
+    })->name('admin.notifications.read');
+
+    // Clear all notifications for admin (delete all)
+    Route::post('/admin/notifications/clear', function() {
+        $user = auth()->user();
+        try {
+            $user->notifications()->delete();
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal membersihkan notifikasi.');
+        }
+        return redirect()->back()->with('success', 'Semua notifikasi telah dibersihkan.');
+    })->name('admin.notifications.clear');
+    
+    // Admin respond to VMRental requests
+    Route::post('/admin/vmrentals/{id}/respond', [\App\Http\Controllers\VMRentalController::class, 'respond'])
+        ->name('admin.vmrentals.respond');
+
+    // Admin: update Rental status inline
+    Route::post('/rentals/{rental}/status', [RentalController::class, 'updateStatus'])
+        ->name('rentals.updateStatus');
+
+    // Admin: update VMRental status inline
+    Route::post('/vmrentals/{vmrental}/status', [VMRentalController::class, 'updateStatus'])
+        ->name('vmrentals.updateStatus');
+
+    // Admin: update VM status (used by inline admin status change)
+    Route::post('/vms/{vm}/status', [VMController::class, 'updateStatus'])
+        ->name('vms.updateStatus');
 });
 
 // ROUTE USER (accessible by admin and user)
@@ -51,6 +139,8 @@ Route::middleware(['auth', 'role:admin,user'])->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profile/avatar', [ProfileController::class, 'uploadAvatar'])->name('profile.avatar');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
 // Test route - tambahkan di bagian bawah
@@ -58,12 +148,6 @@ Route::get('/test-role', function() {
     return 'Role middleware working! User: ' . auth()->user()->name . ', Role: ' . auth()->user()->role;
 })->middleware(['auth', 'role:user']);
 
-    // Rental Routes
-    //Route::get('/rentals', [RentalController::class, 'index'])->name('rentals.index');
-    //Route::post('/rentals', [RentalController::class, 'store'])->name('rentals.store');
-    //Route::get('/rentals/{rental}', [RentalController::class, 'show'])->name('rentals.show');
-
-    // VMRental resource (user can request rental)
     Route::resource('vmrentals', VMRentalController::class);
 });
 

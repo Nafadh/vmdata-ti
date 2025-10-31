@@ -12,7 +12,7 @@ class VMSpecificationSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('v_m_specifications')->insert([
+       /* DB::table('v_m_specifications')->insert([
             [
                 'name' => 'VM Basic',
                 'ram' => 4,
@@ -29,14 +29,8 @@ class VMSpecificationSeeder extends Seeder
                 'description' => 'Paket standar untuk kebutuhan menengah',
                 'status' => 'available'
             ],
-            [
-                'name' => 'VM Premium',
-                'ram' => 12,
-                'storage' => 512,
-                'backup_disk' => 50,
-                'description' => 'Paket premium untuk performa tinggi',
-                'status' => 'available'
-            ],  
+            
         ]);
+        */
     }
 }

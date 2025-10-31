@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             VMSpecificationSeeder::class,
             ServerSeeder::class,
             RentalSeeder::class,
+            SettingSeeder::class,
             // UserSeeder::class,
             // VMSeeder::class,
             // RentalSeeder
@@ -22,9 +23,9 @@ class DatabaseSeeder extends Seeder
 
          // Admin
         DB::table('users')->insertOrIgnore([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('admin123'), // default password = "password"
+            'name' => env('ADMIN_NAME', 'Admin'),
+            'email' => env('ADMIN_EMAIL', 'admin@example.com'),
+            'password' => Hash::make(env('ADMIN_PASSWORD', 'admin123')),
             'role' => 'admin',
             'created_at' => now(),
             'updated_at' => now(),

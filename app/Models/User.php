@@ -12,7 +12,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'phone', 'organization', 'role', 'is_verified'
+        'name', 'email', 'password', 'phone', 'organization', 'role', 'is_verified', 'avatar'
     ];
 
     protected $casts = [
@@ -27,6 +27,6 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        return $this->role === 'admin';
+        return strtolower($this->role ?? '') === 'admin';
     }
 }

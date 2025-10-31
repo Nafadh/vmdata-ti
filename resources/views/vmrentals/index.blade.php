@@ -1,17 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Daftar Permintaan Sewa')
-@section('page-title', 'Permintaan Sewa VM')
-
+@section('title', 'VMDATA TI')
+@section('page-title', 'Daftar Permintaan Sewa VM')
 @section('content')
 <div class="container-fluid">
-    <h2 class="mb-4">Permintaan Sewa VM</h2>
-
+    
     <a href="{{ route('vmrentals.create') }}" class="btn btn-success mb-3">Buat Permintaan Sewa</a>
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+    {{-- Notifications are shown in the main layout to avoid duplicates --}}
 
     <table class="table table-bordered">
         <thead>
@@ -19,6 +15,7 @@
                 <th>#</th>
                 <th>VM</th>
                 <th>User</th>
+                <th>Resources</th>
                 <th>Periode</th>
                 <th>Status</th>
                 <th>Aksi</th>
@@ -30,7 +27,12 @@
                     <td>{{ $i + 1 }}</td>
                     <td>{{ $r->vm->name ?? '-' }}</td>
                     <td>{{ $r->user->name ?? auth()->user()->name }}</td>
-                    <td>{{ optional($r->start_time)->format('Y-m-d H:i') }} - {{ optional($r->end_time)->format('Y-m-d H:i') }}</td>
+                        <td>
+                        CPU: {{ $r->cpu ?? ($r->vm->cpu ?? '-') }} vCPU<br>
+                        RAM: {{ $r->ram ?? ($r->vm->ram ?? '-') }} GB<br>
+                        Storage: {{ $r->storage ?? ($r->vm->storage ?? '-') }} GB
+                    </td>
+                    <td>{{ optional($r->start_time)->format('d/m/Y') }} - {{ optional($r->end_time)->format('d/m/Y') }}</td>
                     <td>{{ ucfirst($r->status) }}</td>
                     <td>
                         <a href="{{ route('vmrentals.show', $r->id) }}" class="btn btn-sm btn-info">Lihat</a>

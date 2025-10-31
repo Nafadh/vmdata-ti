@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class VM extends Model
 {
@@ -11,8 +12,10 @@ class VM extends Model
     protected $table = 'vms';
 
     protected $fillable = [
-        'name', 'category_id', 'vm_specification_id', 
-        'server_id', 'ram', 'storage', 'backup_disk', 'status', 'description'
+        'name', 'category_id', 'specification_id', 'ram', 'cpu',
+        'server_id', 'storage', 'status', 'description', 'user_id',
+        // access credentials
+        'access_username', 'access_password'
     ];
 
     protected $casts = [
@@ -26,7 +29,17 @@ class VM extends Model
 
     public function specification()
     {
-        return $this->belongsTo(VMSpecification::class, 'vm_specification_id');
+        return $this->belongsTo(VMSpecification::class, 'specification_id');
+    }
+
+    public function server()
+    {
+        return $this->belongsTo(Server::class, 'server_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function rentals()
@@ -42,5 +55,34 @@ class VM extends Model
     public function isAvailable()
     {
         return $this->status === 'available';
+    }
+
+    /**
+     * Store the access password encrypted in the database.
+     */
+    public function setAccessPasswordAttribute($value)
+    {
+        if (empty($value)) {
+            $this->attributes['access_password'] = null;
+            return;
+        }
+
+        // encrypt before storing
+        $this->attributes['access_password'] = Crypt::encryptString($value);
+    }
+
+    /**
+     * Decrypt the access password when reading.
+     * Returns null when not set or decryption fails.
+     */
+    public function getAccessPasswordAttribute($value)
+    {
+        if (empty($value)) return null;
+
+        try {
+            return Crypt::decryptString($value);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }

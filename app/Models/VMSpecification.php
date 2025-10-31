@@ -10,15 +10,15 @@ class VMSpecification extends Model
 
     protected $fillable = [
         'name',
-        'ram_gb',
-        'storage_gb',
-        'price_per_hour',
+        'ram',
+        'storage',
+        
         'description',
     ];
 
     public function vms()
     {
-        return $this->hasMany(VM::class, 'v_m_specification_id');
+        return $this->hasMany(VM::class, 'specification_id');
     }
 }
 

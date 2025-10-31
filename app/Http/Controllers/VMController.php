@@ -5,6 +5,7 @@ use App\Models\VM;
 use App\Models\Category;
 use App\Models\VMSpecification;
 use App\Models\Server;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -22,8 +23,12 @@ class VMController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('category', 'like', "%{$search}%")
                   ->orWhere('status', 'like', "%{$search}%");
+            });
+
+            // also search related category name
+            $query->orWhereHas('category', function($cq) use ($search) {
+                $cq->where('name', 'like', "%{$search}%");
             });
         }
     // Status filter
@@ -38,13 +43,14 @@ class VMController extends Controller
 
         $vms = $query->paginate(12)->appends($request->query());
 
-        // Data server Anda
-            try {
-            $servers = Server::all();
+        // Load servers with their VMs + related category & specification to avoid N+1
+        try {
+            // specification relation was removed from VM, only eager-load vms and their category
+            $servers = Server::with(['vms' => function($q) { $q->orderBy('created_at','asc'); }, 'vms.category'])->get();
         } catch (\Exception $e) {
             $servers = collect([]);
         }
-    
+
         return view('vms.index', compact('vms', 'servers'));
     }
 
@@ -55,8 +61,18 @@ class VMController extends Controller
     {
         $categories = Category::all();
         $specifications = VMSpecification::all();
-        
-        return view('vms.create', compact('categories', 'specifications'));
+        // pass servers so user can choose server to attach VM to (optional)
+        $servers = Server::all();
+        $selectedServerId = request()->get('server_id');
+
+        // If admin was redirected from a rental approval, prefill using rental
+        $rental = null;
+        $rentalId = request()->get('rental_id');
+        if ($rentalId) {
+            $rental = \App\Models\VMRental::with('user')->find($rentalId);
+        }
+
+        return view('vms.create', compact('categories', 'specifications', 'servers', 'selectedServerId', 'rental'));
     }
 
     /**
@@ -65,16 +81,75 @@ class VMController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-        'name'        => 'required|string|max:255',
-            'category'    => 'required|string|max:255',
-            'ram'         => 'required|integer|min:1',
-            'storage'     => 'required|integer|min:1',
-            'backup_disk' => 'nullable|integer|min:0',
-            'description' => 'nullable|string|max:1000',
-            'status'      => 'required|in:available,active,rented,inactive',
+            'name'             => 'required|string|max:255',
+            // accept either a numeric id or a slug string for category
+            'category_id'      => 'required',
+            'access_username'  => 'nullable|string|max:255',
+            'access_password'  => 'nullable|string|max:255',
+            'ram'              => 'required|integer|min:1',
+            'cpu'              => 'required|integer|min:1|max:64',
+            // server_id is required: VMs must be attached to a server to avoid orphan records
+            'server_id'        => 'required|exists:servers,id',
+            'storage'          => 'required|integer|min:1',
+            'description'      => 'nullable|string|max:1000',
+            'status'           => ['required', Rule::in(['available','rented','maintenance','offline'])],
         ]);
 
-        $vm = VM::create($validated);
+        // Resolve category: allow slug (string) or id (numeric)
+        $categoryInput = $request->input('category_id');
+        if (is_numeric($categoryInput)) {
+            $category = Category::find($categoryInput);
+        } else {
+            // only attempt slug lookup if the column exists; otherwise fallback to name
+            if (Schema::hasColumn('categories', 'slug')) {
+                $category = Category::where('slug', $categoryInput)->first();
+            } else {
+                // try to match by name (case-insensitive)
+                $category = Category::whereRaw('LOWER(name) = ?', [strtolower($categoryInput)])->first();
+            }
+        }
+
+        if (!$category) {
+            return back()->withInput()->withErrors(['category_id' => 'Selected category is invalid.']);
+        }
+
+        $validated['category_id'] = $category->id;
+
+        // attach current user as owner
+        $validated['user_id'] = auth()->id();
+
+        // Only include access_password if provided (mutator will encrypt)
+        $createData = $validated;
+        if ($request->filled('access_password')) {
+            $createData['access_password'] = $request->input('access_password');
+        }
+        if ($request->filled('access_username')) {
+            $createData['access_username'] = $request->input('access_username');
+        }
+
+        $vm = VM::create($createData);
+
+        // If this VM creation is in response to a rental request, link them
+        if ($request->filled('rental_id')) {
+            $rental = \App\Models\VMRental::find($request->input('rental_id'));
+            if ($rental) {
+                $rental->vm_id = $vm->id;
+                $rental->status = 'active';
+                $rental->save();
+
+                // mark VM as rented
+                $vm->status = 'rented';
+                $vm->save();
+
+                // notify the requesting user that their rental is approved and VM created
+                try {
+                    $rental->user->notify(new \App\Notifications\VMRentalStatusUpdated($rental, 'approve', auth()->user()));
+                } catch (\Exception $e) {
+                    // don't break the flow on notify failure, just log
+                    \Illuminate\Support\Facades\Log::error('Failed to notify user after VM creation', ['error' => $e->getMessage(), 'rental_id' => $rental->id]);
+                }
+            }
+        }
 
         return redirect()->route('vms.index')
                          ->with('success', 'Virtual Machine created successfully!');
@@ -97,8 +172,10 @@ class VMController extends Controller
     {
         $categories = Category::all();
         $specifications = VMSpecification::all();
+        // pass servers as well so edit form can select server
+        $servers = Server::all();
         
-        return view('vms.edit', compact('vm', 'categories', 'specifications'));
+        return view('vms.edit', compact('vm', 'categories', 'specifications', 'servers'));
     }
 
     /**
@@ -107,16 +184,49 @@ class VMController extends Controller
     public function update(Request $request, VM $vm)
     {
         $validated = $request->validate([
-        'name'        => 'required|string|max:255',
-            'category'    => 'required|string|max:255',
-            'ram'         => 'required|integer|min:1',
-            'storage'     => 'required|integer|min:1',
-            'backup_disk' => 'nullable|integer|min:0',
-            'description' => 'nullable|string|max:1000',
-            'status'      => 'required|in:available,active,rented,inactive',
+            'name'             => 'required|string|max:255',
+            'category_id'      => 'required',
+            'access_username'  => 'nullable|string|max:255',
+            'access_password'  => 'nullable|string|max:255',
+            'ram'              => 'required|integer|min:1',
+            'cpu'              => 'required|integer|min:1|max:64',
+            // require server on update as well to ensure VMs remain assigned
+            'server_id'        => 'required|exists:servers,id',
+            'storage'          => 'required|integer|min:1',
+            'description'      => 'nullable|string|max:1000',
+            'status'           => ['required', Rule::in(['available','rented','maintenance','offline'])],
         ]);
 
-        $vm->update($validated);
+        $categoryInput = $request->input('category_id');
+        if (is_numeric($categoryInput)) {
+            $category = Category::find($categoryInput);
+        } else {
+            if (Schema::hasColumn('categories', 'slug')) {
+                $category = Category::where('slug', $categoryInput)->first();
+            } else {
+                $category = Category::whereRaw('LOWER(name) = ?', [strtolower($categoryInput)])->first();
+            }
+        }
+
+        if (!$category) {
+            return back()->withInput()->withErrors(['category_id' => 'Selected category is invalid.']);
+        }
+
+        $validated['category_id'] = $category->id;
+
+        // Only update password when provided
+        $updateData = $validated;
+        if ($request->filled('access_password')) {
+            $updateData['access_password'] = $request->input('access_password');
+        } else {
+            // prevent overwriting with empty value
+            unset($updateData['access_password']);
+        }
+        if ($request->filled('access_username')) {
+            $updateData['access_username'] = $request->input('access_username');
+        }
+
+        $vm->update($updateData);
 
         return redirect()->route('vms.index')
                          ->with('success', 'Virtual Machine updated successfully!');
@@ -127,13 +237,25 @@ class VMController extends Controller
      */
     public function destroy(VM $vm)
     {
-        // Check if VM has active rentals
-        if ($vm->rentals()->where('status', 'active')->exists()) {
-            return redirect()->route('vms.index')
-                           ->with('error', 'Cannot delete VM with active rentals.');
+        // Prevent deleting a VM that has any associated rentals to avoid FK constraint failures.
+        // Previously we only checked for active rentals — but other statuses (completed/cancelled/pending)
+        // still have fk rows and will block DELETE. Check for any rental reference instead.
+        if ($vm->rentals()->exists()) {
+            $rentalIds = $vm->rentals()->pluck('id')->take(10)->toArray();
+            $message = 'Cannot delete VM because it has related rental records. Please remove or reassign those rentals first.';
+            return redirect()->route('vms.show', $vm->id)
+                           ->with('error', $message)
+                           ->with('blocking_rental_ids', $rentalIds);
         }
 
-        $vm->delete();
+        try {
+            $vm->delete();
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Friendly fallback if DB still rejects the delete for any reason (e.g., unexpected FK)
+            \Log::warning('Failed to delete VM: '.$e->getMessage(), ['vm_id' => $vm->id]);
+            return redirect()->route('vms.index')
+                         ->with('error', 'Unable to delete VM due to related records. Please check rentals or database constraints.');
+        }
 
         return redirect()->route('vms.index')
                          ->with('success', 'Virtual Machine deleted successfully!');
@@ -154,6 +276,31 @@ class VMController extends Controller
         return redirect()->back()
     ->with('success', 'VM status changed to ' . $newStatus);
     }   
+
+    /**
+     * Update VM status via AJAX (admin only)
+     */
+    public function updateStatus(Request $request, VM $vm)
+    {
+        if (!auth()->user()->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['available','rented','maintenance','offline'])],
+        ]);
+
+        $old = $vm->status;
+        $vm->status = $validated['status'];
+        $vm->save();
+
+        return response()->json([
+            'success' => true,
+            'old' => $old,
+            'status' => $vm->status,
+            'message' => 'Status updated to ' . $vm->status,
+        ]);
+    }
 
     /**
      * Generate the next available IP address

@@ -15,6 +15,7 @@ class VmFactory extends Factory
             'name' => $this->faker->unique()->word . ' VM',
             'category_id' => Category::inRandomOrder()->first()->id ?? Category::factory(),
             'ram' => $this->faker->randomElement([ 4, 8, 12]),
+            'cpu' => $this->faker->randomElement([1, 2, 4]),
             'storage' => $this->faker->randomElement([128, 256, 512]),
             'backup_disk' => $this->faker->randomElement([10, 20, 50]),
             'description' => $this->faker->sentence(),

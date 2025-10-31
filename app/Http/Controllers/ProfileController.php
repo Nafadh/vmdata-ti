@@ -2,59 +2,115 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): View
+    public function edit(Request $request)
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        return view('profile.edit', ['user' => $request->user()]);
     }
 
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request)
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required','email','max:255',
+                Rule::unique('users')->ignore($user->id),
+            ],
+        ]);
+
+        $user->fill($data);
+        $user->save();
+
+        return back()->with('status', 'Profil diperbarui.');
+    }
+
+    /**
+     * Update the user's password.
+     */
+    public function updatePassword(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'current_password' => ['required'],
+            'password' => ['required','string','min:8','confirmed'],
+        ]);
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Password saat ini salah.']);
         }
 
-        $request->user()->save();
+        $user->password = Hash::make($request->password);
+        $user->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return back()->with('status', 'Password diperbarui.');
+    }
+
+    /**
+     * Upload a new avatar for the user.
+     */
+    public function uploadAvatar(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+                // allow larger avatar uploads (max 10 MB). Note: server PHP settings must also allow this
+                'avatar' => 'required|image|max:10240', // max is in kilobytes (KB)
+        ]);
+
+        if ($request->file('avatar')) {
+            // hapus avatar lama jika ada
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = $path;
+            $user->save();
+        }
+
+        return back()->with('status', 'Avatar diperbarui.');
     }
 
     /**
      * Delete the user's account.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        $user = $request->user();
+
+        // optional: validasi password sebelum hapus
+        $request->validate([
+            'password' => ['required'],
         ]);
 
-        $user = $request->user();
+        if (!Hash::check($request->password, $user->password)) {
+            return back()->withErrors(['password' => 'Password salah.']);
+        }
 
         Auth::logout();
 
+        // hapus avatar
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
         $user->delete();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        return redirect('/')->with('status', 'Akun dihapus.');
     }
 }

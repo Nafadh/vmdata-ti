@@ -1,6 +1,6 @@
 @extends('app')
 
-@section('title', 'Profil Saya')
+@section('title', 'VMDATA TI')
 @section('page-title', 'Profil Saya')
 
 @section('content')
@@ -41,14 +41,14 @@
                     <div class="text-muted"><i class="fas fa-angle-right"></i></div>
                 </a>
 
-                <a href="{{ route('vms.index') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start {{ request()->routeIs('vms.*') ? 'active' : '' }}" title="Lihat & kelola VM Anda">
+                <!--<a href="{{ route('vms.index') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start {{ request()->routeIs('vms.*') ? 'active' : '' }}" title="Lihat & kelola VM Anda">
                     <div>
                         <i class="fas fa-desktop me-2"></i>
                         <strong>Virtual Machines</strong>
                         <div class="small text-muted">Kelola VM</div>
                     </div>
                     <div class="text-muted"><i class="fas fa-angle-right"></i></div>
-                </a>
+                </a>-->
 
                 @if(Route::has('vmrentals.index'))
                     <a href="{{ route('vmrentals.index') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start {{ request()->routeIs('vmrentals.*') ? 'active' : '' }}" title="Lihat riwayat sewa Anda">

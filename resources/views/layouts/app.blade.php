@@ -45,6 +45,8 @@
     .profile-menu-card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.08); transform: translateY(-4px); }
     .sidebar .nav-link .badge { font-size: .7rem; }
     </style>
+    @stack('styles')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
     <div class="container-fluid">
@@ -85,16 +87,17 @@
 
 
 </body>  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Initialize Bootstrap tooltips
-        document.addEventListener('DOMContentLoaded', function () {
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
-                        return new bootstrap.Tooltip(tooltipTriggerEl)
-                })
-        });
+    // Initialize Bootstrap tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
     </script>
-    @yield('scripts')
+    @stack('scripts')
 
+</body>
 </html>

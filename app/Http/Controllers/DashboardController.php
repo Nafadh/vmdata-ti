@@ -18,15 +18,32 @@ class DashboardController extends Controller
             return redirect()->route('user.dashboard');
         }
 
+        // Basic stats
+        $totalVms = VM::count();
+
+        // Count VMs grouped by status so dashboard overview reflects actual VM statuses
+        $statusCounts = VM::selectRaw('status, COUNT(*) as cnt')
+            ->groupBy('status')
+            ->pluck('cnt', 'status')
+            ->toArray();
+
         $stats = [
-            'total_vms' => VM::count(),
-            'available_vms' => VM::where('status', 'available')->count(),
+            'total_vms' => $totalVms,
+            'available_vms' => isset($statusCounts['available']) ? (int)$statusCounts['available'] : 0,
+            'rented_vms' => isset($statusCounts['rented']) ? (int)$statusCounts['rented'] : 0,
+            'maintenance_vms' => isset($statusCounts['maintenance']) ? (int)$statusCounts['maintenance'] : 0,
+            'offline_vms' => isset($statusCounts['offline']) ? (int)$statusCounts['offline'] : 0,
             'active_rentals' => VMRental::where('status', 'active')->count(),
             'total_revenue' => VMRental::sum('total_cost'),
             'total_users' => User::count()
         ];
 
-        $recentVMs = VM::latest()->take(5)->with(['category', 'specification'])->get();
+        // Exclude VMs that are not assigned to any server (prevent showing orphan VMs)
+        $recentVMs = VM::whereNotNull('server_id')
+            ->with(['server', 'category', 'specification'])
+            ->latest()
+            ->take(5)
+            ->get();
         // Combine active rentals from both VMRental and Rental so admin dashboard
         // shows all renter records regardless of which table they are stored in.
         $vmRentals = VMRental::where('status', 'active')

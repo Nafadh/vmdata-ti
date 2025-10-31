@@ -26,11 +26,5 @@ class ServerSeeder extends Seeder
             'description' => 'Server untuk database MySQL'
         ]);
 
-        Server::create([
-            'name' => 'Mail Server',
-            'local_network' => '192.168.3.0/24',
-            'status' => 'maintenance',
-            'description' => 'Server untuk email'
-        ]);
     }
 }

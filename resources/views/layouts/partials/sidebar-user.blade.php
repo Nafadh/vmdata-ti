@@ -16,11 +16,11 @@
             </a>
         </li>
 
-        <li class="nav-item mb-1">
+        <!--<li class="nav-item mb-1">
             <a class="nav-link {{ request()->routeIs('vms.*') ? 'active' : '' }}" href="{{ route('vms.index') }}" data-bs-toggle="tooltip" title="Kelola Virtual Machines Anda">
                 <i class="fas fa-desktop"></i> <span class="ms-2">Virtual Machines</span>
             </a>
-        </li>
+        </li> -->
 
         @if(Route::has('vmrentals.index'))
             <li class="nav-item">

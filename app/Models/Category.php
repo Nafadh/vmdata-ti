@@ -7,24 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-    protected $fillable = ['name', 'description'];
-    
+    protected $fillable = ['name', 'slug', 'description'];
+
     public function vms()
     {
         return $this->hasMany(VM::class);
-    }
-}
-
-// app/Models/VMSpecification.php  
-class VMSpecification extends Model
-{
-    protected $fillable = [
-        'name', 'cpu_cores', 'ram_gb', 'storage_gb', 'price_per_hour', 'description'
-    ];
-    
-    public function vms()
-    {
-        return $this->hasMany(VM::class, 'vm_specification_id');
     }
 }
 
